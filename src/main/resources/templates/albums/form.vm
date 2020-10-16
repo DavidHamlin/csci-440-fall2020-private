@@ -25,7 +25,7 @@
     </tr>
     <tr>
         <td>Artist</td>
-        <td>$web.select('Artist', 'Name')</td>
+        <td>$web.select('Artist', 'Name', $!album.ArtistId)</td>
     </tr>
     </tbody>
 </table>

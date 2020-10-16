@@ -33,8 +33,29 @@ public class TracksController {
         /* READ */
         get("/tracks", (req, resp) -> {
             String search = req.queryParams("q");
-            List<Track> tracks = Track.all(Web.getPage(), Web.PAGE_SIZE, search);
+            String orderBy = req.queryParams("o");
+            List<Track> tracks;
+            if (search != null) {
+                tracks = Track.search(Web.getPage(), Web.PAGE_SIZE, orderBy, search);
+            } else {
+                tracks = Track.all(Web.getPage(), Web.PAGE_SIZE, orderBy);
+            }
+            // TODO - implement cache of count w/ Redis
+            long totalTracks = Track.count();
             return Web.renderTemplate("templates/tracks/index.vm",
+                    "tracks", tracks, "totalTracks", totalTracks);
+        });
+
+        get("/tracks/search", (req, resp) -> {
+            String search = req.queryParams("q");
+            List<Track> tracks;
+            tracks = Track.advancedSearch(Web.getPage(), Web.PAGE_SIZE,
+                    search,
+                    Web.integerOrNull("ArtistId"),
+                    Web.integerOrNull("AlbumId"),
+                    Web.integerOrNull("max"),
+                    Web.integerOrNull("min"));
+            return Web.renderTemplate("templates/tracks/search.vm",
                     "tracks", tracks);
         });
 

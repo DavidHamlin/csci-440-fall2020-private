@@ -1,5 +1,6 @@
 package edu.montana.csci.csci440.controller;
 
+import edu.montana.csci.csci440.helpers.EmployeeHelper;
 import edu.montana.csci.csci440.model.Employee;
 import edu.montana.csci.csci440.util.Web;
 
@@ -31,9 +32,21 @@ public class EmployeesController {
 
         /* READ */
         get("/employees", (req, resp) -> {
-            List<Employee> employees = Employee.all(1, Integer.parseInt(req.queryParams("count")));
+            List<Employee> employees = Employee.all(1, Web.PAGE_SIZE);
             return Web.renderTemplate("templates/employees/index.vm",
                     "employees", employees);
+        });
+
+        get("/employees/tree", (request, response) -> {
+            String employeeTree = EmployeeHelper.makeEmployeeTree();
+            return Web.renderTemplate("templates/employees/tree.vm",
+                    "employeeTree", employeeTree);
+        });
+
+        get("/employees/sales", (request, response) -> {
+            List<Employee.SalesSummary> salesInfo = Employee.getSalesSummaries();
+            return Web.renderTemplate("templates/employees/sales.vm",
+                    "salesInfo", salesInfo);
         });
 
         get("/employees/:id", (req, resp) -> {
