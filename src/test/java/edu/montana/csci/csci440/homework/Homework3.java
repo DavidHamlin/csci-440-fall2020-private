@@ -16,7 +16,19 @@ public class Homework3 extends DBTest {
      */
     public void createTracksPlusView(){
         //TODO fill this in
-        executeDDL("CREATE VIEW tracksPlus");
+        executeDDL("CREATE VIEW tracksPlus AS " +
+                "SELECT tracks.*," +
+                    "albums.Title as AlbumTitle," +
+                    "artists.Name as ArtistName," +
+                    "genres.Name as GenreName " +
+                "FROM tracks " +
+                "       JOIN albums ON " +
+                "           tracks.AlbumId = albums.AlbumId" +
+                "       JOIN artists ON" +
+                "           albums.ArtistId = artists.ArtistId"+//);// +
+                "       JOIN genres ON" +
+                "           tracks.GenreId = genres.GenreId");
+
 
         List<Map<String, Object>> results = executeSQL("SELECT * FROM tracksPlus ORDER BY TrackId");
         assertEquals(3503, results.size());
@@ -36,8 +48,16 @@ public class Homework3 extends DBTest {
      */
     public void createGrammyInfoTable(){
         //TODO fill these in
-        executeDDL("create table grammy_categories");
-        executeDDL("create table grammy_infos");
+        executeDDL("CREATE TABLE grammy_categories(" +
+                "GrammyCategoryId INTEGER PRIMARY KEY," +
+                "Name NVCARHAR(160));");
+        executeDDL("CREATE TABLE grammy_infos(" +
+
+                "ArtistId   INTEGER," +
+                "AlbumId    INTEGER," +
+                "TrackId    INTEGER," +
+                "GrammyCategoryId   INTEGER," +
+                "Status     NVARCHAR(160));");
 
         // TEST CODE
         executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
@@ -61,7 +81,7 @@ public class Homework3 extends DBTest {
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
         //TODO fill this in
-        executeUpdate("INSERT");
+        executeUpdate("INSERT INTO genres(name) VALUES ('Hard EDM'), ('Soundcloud Rap'), ('Christmas Trap'),  ('Chauh'), ('Deaf person bangers')");
 
         Integer after = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
         assertEquals(before + 5, after);

@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class Homework2 extends DBTest {
 
     @Test
-    /*
-     * Write a query in the string below that returns all artists that have an 'A' in their name
-     */
+        /*
+         * Write a query in the string below that returns all artists that have an 'A' in their name
+         */
     void selectArtistsWhoseNameHasAnAInIt(){
         List<Map<String, Object>> results = executeSQL("SELECT ArtistId FROM artists " +
                 "WHERE Name LIKE '%A%'");
@@ -20,9 +20,9 @@ public class Homework2 extends DBTest {
     }
 
     @Test
-    /*
-     * Write a query in the string below that returns all artists that have more than one album
-     */
+        /*
+         * Write a query in the string below that returns all artists that have more than one album
+         */
     void selectAllArtistsWithMoreThanOneAlbum(){
         List<Map<String, Object>> results = executeSQL(
                 "SELECT Name FROM artists LEFT OUTER JOIN albums on artists.ArtistId" +
