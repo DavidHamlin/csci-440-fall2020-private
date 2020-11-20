@@ -3,6 +3,7 @@ package edu.montana.csci.csci440.model;
 import edu.montana.csci.csci440.DBTest;
 import edu.montana.csci.csci440.util.DB;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.engine.support.descriptor.FileSystemSource;
 
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class TrackTest extends DBTest {
         track.setName("Example");
         track.setAlbum(Album.find(1));
 
+        System.out.println(track.getName());
+        System.out.println(track.getAlbumId());
         assertNull(track.getTrackId());
         track.create();
         assertNotNull(track.getTrackId());

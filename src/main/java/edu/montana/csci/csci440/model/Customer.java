@@ -31,6 +31,7 @@ public class Customer extends Model {
         lastName = results.getString("LastName");
         customerId = results.getLong("CustomerId");
         supportRepId = results.getLong("SupportRepId");
+        email = results.getString("Email");
     }
 
     public String getFirstName() {
@@ -58,11 +59,15 @@ public class Customer extends Model {
     }
 
     public static List<Customer> all(int page, int count) {
+        int offset = page*count-count; //see what new number we need to start by
+        //because offset is what number the page starts from
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM customers LIMIT ?"
+                     "SELECT * FROM customers LIMIT ?,?"
              )) {
-            stmt.setInt(1, count);
+            stmt.setInt(2, count);
+            stmt.setInt(1, offset);
             ResultSet results = stmt.executeQuery();
             List<Customer> resultList = new LinkedList<>();
             while (results.next()) {

@@ -15,6 +15,7 @@ public class Artist extends Model {
 
     Long artistId;
     String name;
+    String namePrev; //old name
 
     public Artist() {
     }
@@ -22,6 +23,8 @@ public class Artist extends Model {
     private Artist(ResultSet results) throws SQLException {
         name = results.getString("Name");
         artistId = results.getLong("ArtistId");
+        namePrev = name;
+
     }
 
     public List<Album> getAlbums(){
@@ -40,6 +43,8 @@ public class Artist extends Model {
         return name;
     }
 
+    public String getNamePrev(){return namePrev;} //added to get old name
+
     public void setName(String name) {
         this.name = name;
     }
@@ -49,11 +54,15 @@ public class Artist extends Model {
     }
 
     public static List<Artist> all(int page, int count) {
+        int offset = page*count-count; //see what new number we need to start by
+                            //because offset is what number the page starts from
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM artists LIMIT ?"
+                     "SELECT * FROM artists LIMIT ?,?"
              )) {
-            stmt.setInt(1, count);
+            stmt.setInt(2, count);
+            stmt.setInt(1, offset);
             ResultSet results = stmt.executeQuery();
             List<Artist> resultList = new LinkedList<>();
             while (results.next()) {
@@ -64,8 +73,77 @@ public class Artist extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+    @Override
+    public boolean verify() {
+        _errors.clear(); // clear any existing errors
+        if (name == null || "".equals(name)) {
+            addError("Name can't be null or blank!");
+        }
+
+        return !hasErrors();
+    }
+    @Override
+    public boolean create() {
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "INSERT INTO artists (Name) VALUES (?)")) {
+                stmt.setString(1, this.getName());
+
+                stmt.executeUpdate();
+                artistId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+    public void delete() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "DELETE FROM artists WHERE ArtistId=?")) {
+            stmt.setLong(1, this.getArtistId());
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
+    @Override
+    public boolean update() {
+        System.out.println(this.getName());
+        if (verify()) {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE artists SET Name=? WHERE " +
+                                 "Name=? AND ArtistId=?")){
+
+
+                stmt.setString(1, this.getName());
+                stmt.setString(2, this.getNamePrev());
+                stmt.setLong(3, this.getArtistId());
+
+                int i = stmt.executeUpdate();
+                if (i<1){
+                    return false;
+                }
+
+                stmt.executeUpdate();
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
+    }
+
+
 
     public static Artist find(long i) {
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM artists WHERE ArtistId=?")) {
             stmt.setLong(1, i);
