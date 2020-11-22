@@ -66,6 +66,7 @@ public class Track extends Model {
     }
 
     public boolean create() {
+        Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
 
         //The test is inserting an entire album into the db, so
         //we need to insert all variables of the album so they will
@@ -85,6 +86,10 @@ public class Track extends Model {
                 stmt.setLong(7, this.getGenreId());
                 stmt.executeUpdate();
                 trackId = DB.getLastID(conn);
+
+                redisClient.del(REDIS_CACHE_KEY); //invalidate cahce because we
+                //added a row
+
                 return true;
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
@@ -94,11 +99,15 @@ public class Track extends Model {
         }
     }
     public void delete() { //crud
+        Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "DELETE FROM tracks WHERE TrackId=?")) {
             stmt.setLong(1, this.getTrackId());
             stmt.executeUpdate();
+            redisClient.del(REDIS_CACHE_KEY); //invalidate cahce because we
+            //removed a row
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
@@ -143,20 +152,34 @@ public class Track extends Model {
     }
 
     public static Long count() {
+
+
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
 
+//        redisClient.set(REDIS_CACHE_KEY, "Test");
+//        System.out.println("Char");
+//        System.out.println(redisClient.get(REDIS_CACHE_KEY));
 
 
-        try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                return results.getLong("Count");
-            } else {
-                throw new IllegalStateException("Should find a count!");
+        if(redisClient.exists("cs440-tracks-count-cache")){
+            //System.out.println("asdf");
+            return new Long(redisClient.get(REDIS_CACHE_KEY));
+        }
+
+        else {
+
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
+                ResultSet results = stmt.executeQuery();
+                if (results.next()) {
+                    redisClient.set(REDIS_CACHE_KEY, String.valueOf(results.getLong("Count")));
+                    return results.getLong("Count");
+                } else {
+                    throw new IllegalStateException("Should find a count!");
+                }
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
             }
-        } catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
         }
     }
 
