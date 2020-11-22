@@ -171,12 +171,38 @@ public class Track extends Model {
         return null;
     }
 
-    //TODO: returns number
+
     public List<Playlist> getPlaylists(){
+    //returns lists of playlists the track is in
+
+        //elements of a playlist: select PlaylistId, Name
+        //Where track id = this.trackId
+
+        //join playlists over to playlist tracks then select name and id where trackids equal
+
+        {
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement(
+                         "SELECT playlist_track.PlaylistId, Name " +
+                                 "FROM playlist_track " +
+                                 "JOIN playlists ON " +
+                                 "playlists.PlaylistId = playlist_track.PlaylistId " +
+                                 "WHERE TrackId = ?"
+                 )) {
+                stmt.setLong(1, this.getTrackId());
+                ResultSet results = stmt.executeQuery();
+                List<Playlist> resultList = new LinkedList<>();
+                while (results.next()) {
+                    resultList.add(new Playlist(results));
+                }
+                return resultList;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        }
 
 
 
-        return Collections.emptyList();
     }
 
     public Long getTrackId() {
