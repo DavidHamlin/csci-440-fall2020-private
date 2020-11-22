@@ -32,7 +32,7 @@ public class Employee extends Model {
 
     public static List<Employee.SalesSummary> getSalesSummaries() {
         try (Connection conn = DB.connect();
-             //TODO: select first, last, email, sales count, sales total
+             // select first, last, email, sales count, sales total
              // join invoices to customers, then join customers to employees
              PreparedStatement stmt = conn.prepareStatement(
                      "SELECT employees.FirstName, employees.LastName, employees.email, COUNT(invoices.InvoiceId) AS SalesCount, ROUND(TOTAL(invoices.Total), 2) as SalesTotal " +
@@ -64,10 +64,10 @@ public class Employee extends Model {
         if (lastName == null || "".equals(lastName)) {
             addError("LastName can't be null or blank!");
         }
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.contains("@")) { //makes sure email has @ in it
             addError("Invalid Email");
         }
-
+        //checks for valid values.
         return !hasErrors();
     }
 
@@ -113,7 +113,7 @@ public class Employee extends Model {
     }
 
     @Override
-    public void delete() {
+    public void delete() { //deletes
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "DELETE FROM employees WHERE EmployeeID=?")) {
