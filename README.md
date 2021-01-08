@@ -3,7 +3,7 @@
 This is the base upstream repository for CSCI 440.  It contains homeworks as well as the class project 
 information.
 
-See the DemoVideo for a walkthrough of the completed web app.
+See the DemoScript for a walkthrough of the completed web app.
 
 ## Project: Chinook Web App
 
