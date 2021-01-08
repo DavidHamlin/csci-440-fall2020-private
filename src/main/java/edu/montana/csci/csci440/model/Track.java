@@ -163,8 +163,10 @@ public class Track extends Model {
 
         if(redisClient.exists("cs440-tracks-count-cache")){
             //System.out.println("asdf");
+            System.out.println((redisClient.get(REDIS_CACHE_KEY)));
             return new Long(redisClient.get(REDIS_CACHE_KEY));
         }
+
 
         else {
 

@@ -116,6 +116,8 @@ public class Album extends Model {
         }
     }
 
+
+
     public static List<Album> getForArtist(Long artistId) {
 
         //returns album based on artist id
